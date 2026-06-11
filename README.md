@@ -1,133 +1,117 @@
-# Weather Application
+# Skyflow — Premium Weather Dashboard
 
-A full-stack weather app that lets you search for current weather by city. Built with React and Vite, with a serverless API powered by [WeatherAPI.com](https://www.weatherapi.com/). Deployed on [Vercel](https://vercel.com/).
+Skyflow is a premium, high-fidelity meteorological dashboard built with React, Vite, and Node.js. It interfaces with [WeatherAPI.com](https://www.weatherapi.com/) to deliver real-time current conditions, 24-hour sequential trackers, 3-day forecasts, air quality indices, astronomical thresholds, and weather alerts.
+
+Featuring a modern glassmorphic interface, dynamic background themes matched to current conditions, and persistent bookmarks, Skyflow brings desktop-grade weather metrics directly to the browser.
+
+---
+
+## Key Features
+
+- **High-Fidelity UI**: Frosted glassmorphism layout, subtle borders, custom modern typography, and smooth transitions.
+- **Dynamic Themes**: Interactive animated backgrounds that shift gradients dynamically based on the searched city's conditions (Clear, Clouds, Rain, Snow, Night).
+- **Unit Toggler**: Instant toggling between Metric (°C, km/h, km, hPa) and Imperial (°F, mph, miles, inHg) units across all metrics.
+- **Hourly Tracker**: A 24-hour horizontal forecast tracker starting from the location's current hour ("Now") and progressing forward.
+- **3-Day Outlook**: Daily forecast summaries indicating temperatures, condition descriptions, and rain/snow chance indicators.
+- **Detailed Meteorological Grid**:
+  - UV Index (with exposure category)
+  - Air Quality Index (US EPA index category, PM2.5, and PM10 concentrations)
+  - Feels Like temperature
+  - Humidity
+  - Wind speed and direction
+  - Visibility
+  - Sunrise & Sunset times
+  - Barometric Pressure
+- **Quick Access Panel**: Persistent recent searches and pinned favorites saved to `localStorage` for one-click access.
+- **Geolocation Integration**: "Locate" button to query weather for your local coordinate inputs automatically.
+- **Weather Alerts**: Active warning banners that pulse and notify you of severe weather alerts.
+
+---
 
 ## Tech Stack
 
-- **Frontend:** React, Vite
-- **Backend:** Vercel Serverless Functions
-- **API:** [WeatherAPI.com](https://www.weatherapi.com/)
-- **Hosting:** Vercel
+- **Frontend**: React, Vite
+- **Backend API**: Vercel Serverless Functions
+- **Local Dev Server**: Built-in Node.js HTTP dev wrapper (for offline/Vercel-free running)
+- **API Data Source**: [WeatherAPI.com](https://www.weatherapi.com/)
 
-## Prerequisites
-
-- [Node.js](https://nodejs.org/) (v18 or later recommended)
-- A free API key from [WeatherAPI.com](https://www.weatherapi.com/signup.aspx)
+---
 
 ## Project Structure
 
 ```
 Weather-Application/
 ├── api/
-│   └── weather.js       # Serverless API route
+│   └── weather.js       # Vercel Serverless function (forecast, AQI, alerts)
 ├── src/
-│   ├── App.jsx          # React app
-│   ├── main.jsx
-│   └── styles.css
-├── index.html
-├── package.json
-├── vite.config.js
-└── vercel.json
+│   ├── App.jsx          # React dashboard code
+│   ├── main.jsx         # React application entrypoint
+│   └── styles.css       # Premium custom styling design system
+├── index.html           # Document HTML, loaded fonts, and SEO metadata
+├── dev-server.js        # Offline mock server to run Vercel handlers locally
+├── vite.config.js       # Vite bundler config (with API proxying rules)
+├── vercel.json          # Deployment configurations
+└── package.json         # NPM scripts and dependencies
 ```
 
-## Setup
+---
 
-1. **Clone the repository**
+## Setup & Local Running
 
-   ```bash
-   git clone <repository-url>
-   cd Weather-Application
-   ```
+### Prerequisites
 
-2. **Install dependencies**
+- [Node.js](https://nodejs.org/) (v18 or later recommended)
+- A free API key from [WeatherAPI.com](https://www.weatherapi.com/signup.aspx)
 
-   ```bash
-   npm install
-   ```
+### 1. Clone & Install Dependencies
 
-3. **Configure environment variables**
+```bash
+git clone <repository-url>
+cd Weather-Application
+npm install
+```
 
-   Copy the example env file and add your API key:
+### 2. Configure Environment Variables
 
-   ```bash
-   cp .env.example .env.local
-   ```
+Create a `.env.local` file in the root directory:
 
-   Edit `.env.local`:
+```env
+WEATHER_API_KEY=your_weatherapi_key_here
 
-   ```env
-   WEATHER_API_KEY=your_weatherapi_key_here
-   ALLOW_INSECURE_SSL=false
-   ```
+# Required for local Windows dev if Node has trouble verifying SSL certs
+ALLOW_INSECURE_SSL=true
+```
 
-   > Keep your real API key in `.env.local` only. Do not commit it to git.
+### 3. Run Locally
 
-## Running Locally
+Skyflow contains a custom local development server that hosts the backend API offline on port `3001` and proxies it through Vite on port `3000`. This allows you to run the serverless function without requiring a Vercel login token.
 
-Use Vercel's dev server to run both the frontend and API together:
+Start both the backend mock server and the client in separate terminal shells:
 
+**Terminal 1 (Mock API Server)**:
+```bash
+npm run dev:api
+```
+
+**Terminal 2 (Vite Frontend)**:
 ```bash
 npm run dev
 ```
 
-Open the URL shown in the terminal (usually **http://localhost:3000**).
+Open [http://localhost:3000/](http://localhost:3000/) in your browser.
 
-To run only the Vite frontend (API calls will not work):
+---
 
+## Deployment to Vercel
+
+### Option 1: Vercel Git Integration (Recommended)
+1. Push your repository to GitHub.
+2. Link the repository in the Vercel Dashboard.
+3. Configure the environment variable `WEATHER_API_KEY` in the Vercel project settings.
+4. Deploy. Vercel automatically detects Vite and builds the client, while mapping `api/weather.js` to a serverless function endpoint.
+
+### Option 2: Vercel CLI
+Deploy directly from your CLI terminal:
 ```bash
-npm run dev:client
+npx vercel --prod
 ```
-
-## Deploy to Vercel
-
-1. Push your code to GitHub.
-2. Import the repository at [vercel.com/new](https://vercel.com/new).
-3. Add environment variables in the Vercel project settings:
-   - `WEATHER_API_KEY` — your WeatherAPI.com key
-4. Deploy.
-
-Vercel will auto-detect the Vite framework and deploy `api/weather.js` as a serverless function.
-
-Alternatively, deploy from the CLI:
-
-```bash
-npx vercel
-```
-
-## API
-
-### `GET /api/weather?city={cityName}`
-
-Returns current weather for the given city.
-
-**Example response:**
-
-```json
-{
-  "name": "London",
-  "country": "United Kingdom",
-  "region": "City of London, Greater London",
-  "temp": 12.2,
-  "feelsLike": 10.8,
-  "humidity": 94,
-  "windKph": 13.7,
-  "description": "Light rain",
-  "icon": "https://cdn.weatherapi.com/weather/64x64/day/296.png"
-}
-```
-
-## Troubleshooting
-
-**SSL errors when running locally on Windows**
-
-Set this in `.env.local`:
-
-```env
-ALLOW_INSECURE_SSL=true
-```
-
-Use this for local development only. Vercel production does not need this.
-
-**API returns "Weather API key is not configured" on Vercel**
-
-Add `WEATHER_API_KEY` in your Vercel project → Settings → Environment Variables, then redeploy.
