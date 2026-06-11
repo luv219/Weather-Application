@@ -1,12 +1,13 @@
 # Weather Application
 
-A full-stack weather app that lets you search for current weather by city. The React frontend talks to an Express backend, which fetches live data from [WeatherAPI.com](https://www.weatherapi.com/).
+A full-stack weather app that lets you search for current weather by city. Built with React and Vite, with a serverless API powered by [WeatherAPI.com](https://www.weatherapi.com/). Deployed on [Vercel](https://vercel.com/).
 
 ## Tech Stack
 
 - **Frontend:** React, Vite
-- **Backend:** Node.js, Express
+- **Backend:** Vercel Serverless Functions
 - **API:** [WeatherAPI.com](https://www.weatherapi.com/)
+- **Hosting:** Vercel
 
 ## Prerequisites
 
@@ -17,14 +18,16 @@ A full-stack weather app that lets you search for current weather by city. The R
 
 ```
 Weather-Application/
-├── client/          # React frontend (Vite)
-│   └── src/
-│       ├── App.jsx
-│       ├── main.jsx
-│       └── styles.css
-└── server/          # Express API
-    ├── index.js
-    └── .env         # Your local config (not committed)
+├── api/
+│   └── weather.js       # Serverless API route
+├── src/
+│   ├── App.jsx          # React app
+│   ├── main.jsx
+│   └── styles.css
+├── index.html
+├── package.json
+├── vite.config.js
+└── vercel.json
 ```
 
 ## Setup
@@ -39,8 +42,7 @@ Weather-Application/
 2. **Install dependencies**
 
    ```bash
-   cd server && npm install
-   cd ../client && npm install
+   npm install
    ```
 
 3. **Configure environment variables**
@@ -48,35 +50,49 @@ Weather-Application/
    Copy the example env file and add your API key:
 
    ```bash
-   cd server
-   cp .env.example .env
+   cp .env.example .env.local
    ```
 
-   Edit `server/.env`:
+   Edit `.env.local`:
 
    ```env
    WEATHER_API_KEY=your_weatherapi_key_here
-   PORT=5000
    ALLOW_INSECURE_SSL=false
    ```
 
-   > Keep your real API key in `server/.env` only. Do not commit it to git.
+   > Keep your real API key in `.env.local` only. Do not commit it to git.
 
-## Running the App
+## Running Locally
 
-Start the backend and frontend in separate terminals:
+Use Vercel's dev server to run both the frontend and API together:
 
 ```bash
-# Terminal 1 — API server (http://localhost:5000)
-cd server
-npm start
-
-# Terminal 2 — React app (http://localhost:3000)
-cd client
 npm run dev
 ```
 
-Open **http://localhost:3000** in your browser and search for a city.
+Open the URL shown in the terminal (usually **http://localhost:3000**).
+
+To run only the Vite frontend (API calls will not work):
+
+```bash
+npm run dev:client
+```
+
+## Deploy to Vercel
+
+1. Push your code to GitHub.
+2. Import the repository at [vercel.com/new](https://vercel.com/new).
+3. Add environment variables in the Vercel project settings:
+   - `WEATHER_API_KEY` — your WeatherAPI.com key
+4. Deploy.
+
+Vercel will auto-detect the Vite framework and deploy `api/weather.js` as a serverless function.
+
+Alternatively, deploy from the CLI:
+
+```bash
+npx vercel
+```
 
 ## API
 
@@ -102,24 +118,16 @@ Returns current weather for the given city.
 
 ## Troubleshooting
 
-**"Failed to fetch weather data" or SSL errors in Node**
+**SSL errors when running locally on Windows**
 
-Some Windows environments cannot verify HTTPS certificates from Node. Set this in `server/.env`:
+Set this in `.env.local`:
 
 ```env
 ALLOW_INSECURE_SSL=true
 ```
 
-Use this for local development only.
+Use this for local development only. Vercel production does not need this.
 
-**Port already in use**
+**API returns "Weather API key is not configured" on Vercel**
 
-If port 3000 is taken, Vite will try the next available port (e.g. 3001). Check the terminal output for the correct URL.
-
-## Build for Production
-
-```bash
-cd client
-npm run build
-npm run preview
-```
+Add `WEATHER_API_KEY` in your Vercel project → Settings → Environment Variables, then redeploy.

@@ -1,38 +1,37 @@
-const express = require('express');
-const axios = require('axios');
-const https = require('https');
-const dotenv = require('dotenv');
-const cors = require('cors');
+import axios from 'axios';
+import https from 'https';
 
-dotenv.config();
-
-const app = express();
-app.use(cors());
-
-const API_KEY = process.env.WEATHER_API_KEY;
 const BASE_URL = 'https://api.weatherapi.com/v1/current.json';
 const httpsAgent =
   process.env.ALLOW_INSECURE_SSL === 'true'
     ? new https.Agent({ rejectUnauthorized: false })
     : undefined;
 
-app.get('/api/weather', async (req, res) => {
+export default async function handler(req, res) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   const city = req.query.city;
-  if (!city) return res.status(400).json({ error: 'City is required' });
-  if (!API_KEY) return res.status(500).json({ error: 'Weather API key is not configured' });
+  const apiKey = process.env.WEATHER_API_KEY;
+
+  if (!city) {
+    return res.status(400).json({ error: 'City is required' });
+  }
+
+  if (!apiKey) {
+    return res.status(500).json({ error: 'Weather API key is not configured' });
+  }
 
   try {
     const response = await axios.get(BASE_URL, {
-      params: {
-        key: API_KEY,
-        q: city
-      },
+      params: { key: apiKey, q: city },
       httpsAgent
     });
 
     const { location, current } = response.data;
 
-    res.json({
+    return res.status(200).json({
       name: location.name,
       country: location.country,
       region: location.region,
@@ -47,9 +46,6 @@ app.get('/api/weather', async (req, res) => {
     });
   } catch (err) {
     const message = err.response?.data?.error?.message || 'Failed to fetch weather data';
-    res.status(err.response?.status || 500).json({ error: message });
+    return res.status(err.response?.status || 500).json({ error: message });
   }
-});
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
