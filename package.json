@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vercel dev",
-    "dev:client": "vite",
+    "dev": "vite",
+    "dev:api": "node dev-server.js",
     "build": "vite build",
     "preview": "vite preview"
   },
